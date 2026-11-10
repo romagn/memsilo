@@ -2,7 +2,11 @@
 
 ## Reporting a vulnerability
 
-Please report security problems privately, by email, to **rodrigo@reconverge.ie**.
+Please report security problems privately, in either of these ways:
+
+- on GitHub: the repository's **Security** tab, then **Report a vulnerability**
+- by email to **rodrigo@reconverge.ie**
+
 Do not open a public issue or pull request for a vulnerability.
 
 Include what you found, the version or commit, and steps to reproduce it. Never
