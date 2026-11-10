@@ -1,0 +1,63 @@
+# Docker Compose is the supported deployment. Two persistent stores:
+# the qdrant-storage volume (vectors) and ./data (token store, Mem0 history).
+#
+# Before `docker compose up`:  cp .env.example .env  (set ANTHROPIC_API_KEY and
+#                              QDRANT_API_KEY, see .env.example)
+#                              cp config.example.yaml config.yaml
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    restart: unless-stopped
+    # Not published on the host, but NOT unreachable: its address on the Docker
+    # bridge network is routable from the host, so local users and other
+    # containers could reach it. The API key is what protects every customer's
+    # memories; compose refuses to start without one.
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?set QDRANT_API_KEY in .env (see .env.example)}
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant-storage:/qdrant/storage
+
+  # One-shot: give ./data to the container user (uid/gid 10001) and close it to
+  # everyone else (it holds token hashes and customers' memory text), so no sudo
+  # is needed on the host. Runs as root; touches nothing but ./data. It runs on
+  # every `docker compose up`, which also repairs ownership if a file in ./data
+  # was ever written by root.
+  data-init:
+    build: .
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 10001:10001 /app/data && chmod 700 /app/data"]
+    volumes:
+      - ./data:/app/data
+    restart: "no"
+
+  memsilo:
+    build: .
+    restart: unless-stopped
+    # Published on loopback only: put a TLS reverse proxy in front (see README).
+    ports:
+      - "127.0.0.1:8100:8100"
+    env_file: .env
+    environment:
+      - MEMSILO_QDRANT_URL=http://qdrant:6333
+      # The same key the qdrant service requires (also in .env via env_file).
+      - QDRANT_API_KEY=${QDRANT_API_KEY:?set QDRANT_API_KEY in .env (see .env.example)}
+      - MEMSILO_TRANSPORT=streamable-http
+      # Inside the compose network the server must listen on all interfaces.
+      - MEMSILO_SERVER_HOST=0.0.0.0
+    volumes:
+      - ./data:/app/data
+      - type: bind
+        source: ./config.yaml
+        target: /app/config.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      qdrant:
+        condition: service_started
+      data-init:
+        condition: service_completed_successfully
+
+volumes:
+  qdrant-storage:

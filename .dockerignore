@@ -1,0 +1,39 @@
+# Everything here is sent to the Docker daemon as build context even though the
+# Dockerfile only COPYs specific files — keep secrets and local state out of it.
+
+# Secrets and local state
+.env
+.env.*
+!.env.example
+config.yaml
+data/
+
+# Virtualenvs and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+
+# VCS and tooling
+.git/
+.gitignore
+.github/
+.pre-commit-config.yaml
+.claude/
+.superpowers/
+
+# Docs and tests — not needed in the image
+site/
+docs/
+mkdocs.yml
+tests/
+README.md
+justfile
+Dockerfile
+.dockerignore
+docker-compose*.yml

@@ -1,0 +1,40 @@
+# memsilo configuration. Every key is shown with its built-in default.
+# Precedence: environment variable > this file > default.
+# Copy to config.yaml (or point MEMSILO_CONFIG at it).
+#
+# Secrets are NOT set here. Export them in the environment (or .env):
+#   ANTHROPIC_API_KEY   LLM key, when llm.provider is "anthropic"
+#   QDRANT_API_KEY      only if your Qdrant requires one
+
+# Where the server listens. Env: MEMSILO_SERVER_HOST, MEMSILO_SERVER_PORT,
+# MEMSILO_TRANSPORT. transport is one of: stdio, sse, streamable-http.
+server:
+  host: 127.0.0.1
+  port: 8100
+  transport: stdio
+
+# Vector store. Env: MEMSILO_QDRANT_URL, MEMSILO_COLLECTION.
+qdrant:
+  url: http://localhost:6333
+  collection: memsilo
+
+# Fact-extraction LLM. Env: MEMSILO_LLM_PROVIDER, MEMSILO_LLM_MODEL.
+llm:
+  provider: anthropic
+  model: claude-haiku-4-5-20251001
+
+# Embedding model; dims must match the model. Env: MEMSILO_EMBEDDER_PROVIDER,
+# MEMSILO_EMBEDDER_MODEL, MEMSILO_EMBEDDER_DIMS.
+embedder:
+  provider: fastembed
+  model: BAAI/bge-small-en-v1.5
+  dims: 384
+
+# Per-user token store and Mem0 history database (holds memory text; erase
+# purges it). Env: MEMSILO_USERS_FILE, MEMSILO_HISTORY_DB.
+storage:
+  users_file: data/users.json
+  history_db: data/history.db
+
+# Anonymous usage telemetry. Env: MEMSILO_TELEMETRY.
+telemetry: false

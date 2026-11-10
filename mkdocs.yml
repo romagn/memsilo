@@ -1,0 +1,6 @@
+site_name: memsilo
+nav:
+  - Home: index.md
+  - Security: security.md
+theme:
+  name: readthedocs
