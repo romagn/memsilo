@@ -11,16 +11,16 @@ permissions:
 jobs:
   checks:
     name: Lint, Test & Validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
       - name: Install poetry
-        run: pip install poetry
+        run: pip install poetry==2.5.1
 
       - name: Install dependencies
         run: poetry install
@@ -35,7 +35,7 @@ jobs:
         run: poetry run pytest tests/ -v --tb=short
 
       - name: Lint Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: Dockerfile
-          failure-threshold: error
+          failure-threshold: warning
