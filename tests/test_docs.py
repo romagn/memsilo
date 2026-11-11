@@ -22,6 +22,8 @@ SECRET_VARS = {"ANTHROPIC_API_KEY", "QDRANT_API_KEY"}
 # Settings of the Qdrant server image (QDRANT__<section>__<key>), set on the
 # compose qdrant service; memsilo itself does not read them.
 QDRANT_SERVER_VARS = {"QDRANT__SERVICE__API_KEY", "QDRANT__TELEMETRY_DISABLED"}
+# Read by docker compose (the image to run), not by memsilo itself.
+COMPOSE_VARS = {"MEMSILO_IMAGE"}
 # Files an operator creates or the server writes at runtime; docs may name them.
 RUNTIME_FILES = {
     "config.yaml",
@@ -135,7 +137,7 @@ def test_configuration_table_matches_the_code(page):
 
 def test_docs_name_no_unknown_env_var():
     # MEM0_TELEMETRY is set by mcp_server.py, not read from config.
-    known = code_env_vars() | {"MEM0_TELEMETRY"} | QDRANT_SERVER_VARS
+    known = code_env_vars() | {"MEM0_TELEMETRY"} | QDRANT_SERVER_VARS | COMPOSE_VARS
     named = set(re.findall(r"\b(?:MEMSILO|ANTHROPIC|QDRANT|MEM0)_[A-Z0-9_]+\b", ALL_DOCS))
     assert not (named - known), f"docs name env vars the code lacks: {sorted(named - known)}"
 
@@ -149,7 +151,7 @@ def test_docs_name_no_unknown_config_key():
 
 
 def test_compose_and_env_example_use_only_known_variables():
-    known = code_env_vars() | QDRANT_SERVER_VARS
+    known = code_env_vars() | QDRANT_SERVER_VARS | COMPOSE_VARS
     for name in ("docker-compose.yml", ".env.example"):
         text = (ROOT / name).read_text(encoding="utf-8")
         named = set(re.findall(r"\b(?:MEMSILO|ANTHROPIC|QDRANT)_[A-Z0-9_]+\b", text))

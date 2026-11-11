@@ -78,3 +78,19 @@ def test_offline_switch_comes_after_the_model_download():
     offline = next(i for i, ln in enumerate(lines) if "HF_HUB_OFFLINE=1" in ln)
     telemetry = next(i for i, ln in enumerate(lines) if "ORT_DISABLE_TELEMETRY=1" in ln)
     assert telemetry < fetch < offline
+
+
+def test_memsilo_services_pull_the_released_image_and_can_still_build():
+    """Compose defaults to the published image of THIS version (so `git pull` and
+    `docker compose pull` move together), overridable with MEMSILO_IMAGE, and keeps
+    `build: .` so `up --build` builds the same image from the checkout."""
+    version = re.search(
+        r'^version\s*=\s*"([^"]+)"',
+        (ROOT / "pyproject.toml").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    ).group(1)
+    expected = "${MEMSILO_IMAGE:-rmagnorecon/memsilo:" + version + "}"
+    for service in ("memsilo", "data-init"):
+        spec = COMPOSE["services"][service]
+        assert spec["image"] == expected, service
+        assert spec["build"] == ".", service

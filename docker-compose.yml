@@ -4,6 +4,11 @@
 # Before `docker compose up`:  cp .env.example .env  (set ANTHROPIC_API_KEY and
 #                              QDRANT_API_KEY, see .env.example)
 #                              cp config.example.yaml config.yaml
+#
+# The memsilo image is published on Docker Hub (built by CI from each version tag),
+# so `docker compose pull` fetches it. `build: .` stays, so `docker compose up
+# --build` builds the same image from this checkout instead. Set MEMSILO_IMAGE
+# (in your shell or .env) to use another tag or your own registry.
 services:
   qdrant:
     image: qdrant/qdrant:v1.19.0
@@ -24,6 +29,7 @@ services:
   # every `docker compose up`, which also repairs ownership if a file in ./data
   # was ever written by root.
   data-init:
+    image: ${MEMSILO_IMAGE:-rmagnorecon/memsilo:0.1.0}
     build: .
     user: "0:0"
     command: ["sh", "-c", "chown -R 10001:10001 /app/data && chmod 700 /app/data"]
@@ -32,6 +38,7 @@ services:
     restart: "no"
 
   memsilo:
+    image: ${MEMSILO_IMAGE:-rmagnorecon/memsilo:0.1.0}
     build: .
     restart: unless-stopped
     # Published on loopback only: put a TLS reverse proxy in front (see README).

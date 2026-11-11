@@ -96,11 +96,20 @@ echo "QDRANT_API_KEY=$(openssl rand -hex 32)" >> .env
 # (no openssl? python3 -c "import secrets; print(secrets.token_hex(32))")
 cp config.example.yaml config.yaml
 
-docker compose up -d --build      # first build: usually a few minutes, depending on your network
+docker compose pull               # the published image: a few hundred MB, no build needed
+docker compose up -d
 # wait until it is ready (up to 2 minutes)
 for i in $(seq 60); do curl -fsS http://127.0.0.1:8100/health && break; [ "$i" = 60 ] && echo "not ready after 2 minutes: docker compose logs memsilo"; sleep 2; done
 # ok
 ```
+
+The image is `rmagnorecon/memsilo` on Docker Hub, built by this repository's CI from each
+version tag (`0.1.0`, plus `latest`; `linux/amd64` only). The compose file pins the version
+that matches the checkout, so `git pull` moves you to the matching image. To use another tag
+or your own registry set `MEMSILO_IMAGE` (for example `MEMSILO_IMAGE=registry.example.com/memsilo:0.1.0`).
+To build the image from your checkout instead (another platform, or local changes), skip
+`docker compose pull` and run `docker compose up -d --build`: usually a few minutes, depending
+on your network. That build is tagged with the same name, replacing a pulled copy.
 
 `docker compose up -d` returns as soon as the containers have started, before the server
 inside is listening: a `curl` straight away can fail with `Connection reset by peer`. Poll
@@ -165,11 +174,12 @@ Qdrant volume, that is, every memory; it does not touch `./data`).
 
 ```sh
 git pull
-docker compose up -d --build
+docker compose pull               # or: docker compose up -d --build, to build from source
+docker compose up -d
 for i in $(seq 60); do curl -fsS http://127.0.0.1:8100/health && break; [ "$i" = 60 ] && echo "not ready after 2 minutes: docker compose logs memsilo"; sleep 2; done
 ```
 
-The Qdrant volume and `./data` persist across the rebuild: customers, tokens and memories
+The Qdrant volume and `./data` persist across the upgrade: customers, tokens and memories
 stay. Back up both first (see [Where the data lives](#where-the-data-lives)).
 
 ## Configuration
