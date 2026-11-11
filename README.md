@@ -104,9 +104,9 @@ for i in $(seq 60); do curl -fsS http://127.0.0.1:8100/health && break; [ "$i" =
 ```
 
 The image is `rmagnorecon/memsilo` on Docker Hub, built by this repository's CI from each
-version tag (`0.1.0`, plus `latest`; `linux/amd64` only). The compose file pins the version
+version tag (`0.1.1`, plus `latest`; `linux/amd64` only). The compose file pins the version
 that matches the checkout, so `git pull` moves you to the matching image. To use another tag
-or your own registry set `MEMSILO_IMAGE` (for example `MEMSILO_IMAGE=registry.example.com/memsilo:0.1.0`).
+or your own registry set `MEMSILO_IMAGE` (for example `MEMSILO_IMAGE=registry.example.com/memsilo:0.1.1`).
 To build the image from your checkout instead (another platform, or local changes), skip
 `docker compose pull` and run `docker compose up -d --build`: usually a few minutes, depending
 on your network. That build is tagged with the same name, replacing a pulled copy.

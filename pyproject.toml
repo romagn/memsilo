@@ -1,6 +1,6 @@
 [project]
 name = "memsilo"
-version = "0.1.0"
+version = "0.1.1"
 description = "memsilo — multi-user memory MCP server with per-user access"
 authors = [
     {name = "memsilo contributors"}
