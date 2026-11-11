@@ -23,10 +23,13 @@ FORBIDDEN = [
 PATTERN = re.compile("|".join(FORBIDDEN), re.IGNORECASE)
 SKIP = {"tests/test_no_private_strings.py", "poetry.lock"}
 
-# The project's public repository. These exact strings are removed before
-# scanning, so the owner's account name is allowed there and nowhere else
-# (not in a path, an e-mail address, a container registry or an example).
-ALLOWED_EXACT = ["github.com/" + "rom" + "agn/memsilo"]
+# The project's public repository and its security contact. These exact strings
+# are removed before scanning, so they are allowed there and nowhere else (not in
+# a path, another e-mail address, a container registry or an example).
+ALLOWED_EXACT = [
+    "github.com/" + "rom" + "agn/memsilo",
+    "rod" + "rigo@recon" + "verge.ie",
+]
 
 
 def private_hits(text: str) -> list[tuple[int, str]]:
